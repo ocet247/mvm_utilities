@@ -48,3 +48,6 @@ Penetrates through über and other kinds of invulnerabilities.
 Whether real players get health and ammo regeneration.
 This also restores buff meters and other miscellaneous bars (not all of them though).
 This prevents real players from dying as their health will be kept at their max health threshold.
+
+## Path picking
+Path picking data (e.g. relays) has mainly been copied from the Source Mod plugin [Bomb Path Picker](https://forums.alliedmods.net/showthread.php?p=2788098). It doesn't include all maps that are out right now and it might be incorrect as I didn't check each map manually. This might be improved in the future.
