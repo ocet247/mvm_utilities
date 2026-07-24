@@ -44,9 +44,9 @@ local MAX_CLIENTS = MaxClients().tointeger();
 /** @const */
 local OBJECTIVE_RESOURCE = Entities.FindByClassname(null, "tf_objective_resource");
 
-local Maps = {};
+local MapPathData = {};
 
-Maps.mvm_coaltown <- {
+MapPathData.mvm_coaltown <- {
     paths = {
         left = ["bombpath_left_relay"],
         high_left = ["bombpath_high_left_relay"],
@@ -56,11 +56,11 @@ Maps.mvm_coaltown <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_holograms_clear_relay"]
 };
 // Same relay layout as mvm_coaltown
-Maps.mvm_ghost_town <- Maps.mvm_coaltown;
+MapPathData.mvm_ghost_town <- MapPathData.mvm_coaltown;
 // Same relay layout as mvm_coaltown
-Maps.mvm_bigrock <- Maps.mvm_coaltown;
+MapPathData.mvm_bigrock <- MapPathData.mvm_coaltown;
 
-Maps.mvm_decoy <- {
+MapPathData.mvm_decoy <- {
     paths = {
         left = ["bombpath_left_relay"],
         high_left = ["bombpath_high_left_relay"],
@@ -69,7 +69,7 @@ Maps.mvm_decoy <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_rottenburg <- {
+MapPathData.mvm_rottenburg <- {
     paths = {
         left = ["bombpath_left"],
         right = ["bombpath_right"],
@@ -77,7 +77,7 @@ Maps.mvm_rottenburg <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_mannworks <- {
+MapPathData.mvm_mannworks <- {
     paths = {
         left = ["bombpath_left_relay"],
         right = ["bombpath_right_relay"],
@@ -86,7 +86,7 @@ Maps.mvm_mannworks <- {
 }
 
 // Mannhattan has no Reset/Random entities in the source config.
-Maps.mvm_mannhattan <- {
+MapPathData.mvm_mannhattan <- {
     paths = {
         "3ways": ["holograms_3way_relay"],
         centerpath = ["holograms_centerpath_relay"],
@@ -96,8 +96,7 @@ Maps.mvm_mannhattan <- {
 
 // CUSTOM MAPS
 
-// Note: source VDF has Left/Right swapped relative to relay names
-Maps.mvm_barren <- {
+MapPathData.mvm_barren <- {
     paths = {
         left = ["bombpath_right_relay"],
         right = ["bombpath_left_relay"],
@@ -108,7 +107,7 @@ Maps.mvm_barren <- {
 
 // Doppler: unusually complex, spawn-set based rather than simple left/right.
 // Reset targets doors + wildcard path disable; each "path" fires several relays.
-Maps.mvm_doppler <- {
+MapPathData.mvm_doppler <- {
     paths = {
         first_a_spawn_set = ["spawnbot_g2s*,Enable", "spawnbot_g2s0a,Disable", "spawnbot_g2s1b,Disable"],
         first_b_spawn_set = ["spawnbot_g2s*,Enable", "spawnbot_g2s1a,Disable", "spawnbot_g2s0b,Disable"],
@@ -124,8 +123,7 @@ Maps.mvm_doppler <- {
     path_clear = ["gate0s0_entrance_door,Open", "gate0s1_entrance_door,Open", "gate0s2_entrance_door,Open", "path_g0_*,Disable"]
 }
 
-// Note: source VDF has Left/Right swapped relative to relay names
-Maps.mvm_downpour <- {
+MapPathData.mvm_downpour <- {
     paths = {
         left = ["bombpath_choose_right_relay", "bombpath_arrows_right_relay"],
         right = ["bombpath_choose_left_relay", "bombpath_arrows_left_relay"],
@@ -133,10 +131,9 @@ Maps.mvm_downpour <- {
     path_clear = ["bombpath_arrows_clear_relay", "bombpath_clear_relay"]
 }
 // Same relay layout as mvm_downpour
-Maps.mvm_deathpour <- Maps.mvm_downpour;
+MapPathData.mvm_deathpour <- MapPathData.mvm_downpour;
 
-// Note: source VDF has Left/Right swapped relative to relay names
-Maps.mvm_powerplant <- {
+MapPathData.mvm_powerplant <- {
     paths = {
         left_right = ["bombpath_right_left"],
         right_left = ["bombpath_left_right"],
@@ -146,8 +143,7 @@ Maps.mvm_powerplant <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-// Note: source VDF has Left/Right swapped relative to relay names
-Maps.mvm_shiverpeak <- {
+MapPathData.mvm_shiverpeak <- {
     paths = {
         left_straight = ["bombpath_right_straight_relay"],
         right_straight = ["bombpath_left_straight_relay"],
@@ -157,8 +153,7 @@ Maps.mvm_shiverpeak <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_hologram_clear_relay"]
 }
 
-// Note: source VDF has Mid-left/Mid-right swapped relative to relay names
-Maps.mvm_snowpine <- {
+MapPathData.mvm_snowpine <- {
     paths = {
         mid_left = ["bombpath_right_relay"],
         mid_right = ["bombpath_left_relay"],
@@ -166,7 +161,7 @@ Maps.mvm_snowpine <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_waterfront <- {
+MapPathData.mvm_waterfront <- {
     paths = {
         left = ["bombpath_left"],
         right = ["bombpath_right"],
@@ -174,7 +169,7 @@ Maps.mvm_waterfront <- {
     path_clear = ["bombpath_arrows_clear_relay", "bombpath_clearall_relay"]
 }
 
-Maps.mvm_teien <- {
+MapPathData.mvm_teien <- {
     paths = {
         hatch_left = ["bombpath_right_relay"],
         hatch_right = ["bombpath_left_relay"],
@@ -183,7 +178,7 @@ Maps.mvm_teien <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_whitecliff <- {
+MapPathData.mvm_whitecliff <- {
     paths = {
         left = ["bombpath_a"],
         right = ["bombpath_b"],
@@ -191,7 +186,7 @@ Maps.mvm_whitecliff <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_waterlogged <- {
+MapPathData.mvm_waterlogged <- {
     paths = {
         mid_left = ["bombpath_right2_relay"],
         mid_center = ["bombpath_right_relay"],
@@ -200,7 +195,7 @@ Maps.mvm_waterlogged <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_cyberia <- {
+MapPathData.mvm_cyberia <- {
     paths = {
         hatch_left = ["bombpath_right_upper_relay"],
         hatch_right = ["bombpath_left_upper_relay"],
@@ -209,7 +204,7 @@ Maps.mvm_cyberia <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_dockyard <- {
+MapPathData.mvm_dockyard <- {
     paths = {
         hatch_left = ["bombpath_path2_relay"],
         hatch_right = ["bombpath_path1_relay"],
@@ -217,7 +212,7 @@ Maps.mvm_dockyard <- {
     path_clear = ["bombpath_clearmarkers_relay", "bombpath_clear_blockers_relay"]
 }
 
-Maps.mvm_hideout <- {
+MapPathData.mvm_hideout <- {
     paths = {
         left = ["bombpath_flank_relay"],
         right = ["bombpath_main_relay"],
@@ -225,7 +220,7 @@ Maps.mvm_hideout <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_isolation <- {
+MapPathData.mvm_isolation <- {
     paths = {
         left = ["bombpath_left_relay"],
         right = ["bombpath_right_upper_relay"],
@@ -235,7 +230,7 @@ Maps.mvm_isolation <- {
 }
 
 // "Up-left" means "Up then left"
-Maps.mvm_quetzal <- {
+MapPathData.mvm_quetzal <- {
     paths = {
         up_left = ["bombpath_upper_hatch_right_relay"],
         up_right = ["bombpath_upper_hatch_left_relay"],
@@ -247,7 +242,7 @@ Maps.mvm_quetzal <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_spacepost <- {
+MapPathData.mvm_spacepost <- {
     paths = {
         left_up = ["bombpath_upper_left_relay"],
         left_low = ["bombpath_lower_left_relay"],
@@ -257,7 +252,7 @@ Maps.mvm_spacepost <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_steep <- {
+MapPathData.mvm_steep <- {
     paths = {
         cave = ["bombpath_cave_relay"],
         hill = ["bombpath_hill_relay"],
@@ -266,7 +261,7 @@ Maps.mvm_steep <- {
 }
 
 // No relay resets bomb arrows on this map
-Maps.mvm_swirl <- {
+MapPathData.mvm_swirl <- {
     paths = {
         low = ["wave_prepare_relay_lower"],
         up = ["wave_prepare_relay_upper"],
@@ -274,7 +269,7 @@ Maps.mvm_swirl <- {
     path_clear = ["wave_init_relay"]
 }
 
-Maps.mvm_tensai <- {
+MapPathData.mvm_tensai <- {
     paths = {
         left = ["bombpath_plaza_relay"],
         right = ["bombpath_street_relay"],
@@ -282,7 +277,7 @@ Maps.mvm_tensai <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_underground <- {
+MapPathData.mvm_underground <- {
     paths = {
         left = ["bombpath_left_relay"],
         right = ["bombpath_right_relay"],
@@ -290,9 +285,9 @@ Maps.mvm_underground <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_holograms_clear_relay"]
 }
 // Same relay layout as mvm_underground
-Maps.mvm_underworld <- Maps.mvm_underground;
+MapPathData.mvm_underworld <- MapPathData.mvm_underground;
 
-Maps.mvm_butcher <- {
+MapPathData.mvm_butcher <- {
     paths = {
         left = ["bombpath_left_upper_relay"],
         right = ["bombpath_right_relay"],
@@ -300,7 +295,7 @@ Maps.mvm_butcher <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_calico <- {
+MapPathData.mvm_calico <- {
     paths = {
         left_low = ["bombpath_left_low_relay"],
         left_up = ["bombpath_left_up_relay"],
@@ -310,7 +305,7 @@ Maps.mvm_calico <- {
     path_clear = ["bombpath_clear_relay"]
 }
 
-Maps.mvm_casino_city <- {
+MapPathData.mvm_casino_city <- {
     paths = {
         left_low = ["bombpath_left_lower_relay"],
         left_up = ["bombpath_left_upper_relay"],
@@ -320,7 +315,7 @@ Maps.mvm_casino_city <- {
     path_clear = ["relay_bombpath_arrows_clear", "relay_bombpath_nav_clearall"]
 }
 
-Maps.mvm_cliffside <- {
+MapPathData.mvm_cliffside <- {
     paths = {
         left = ["bombpath_left"],
         right = ["bombpath_right"],
@@ -328,9 +323,9 @@ Maps.mvm_cliffside <- {
     path_clear = ["bombpath_clear"]
 }
 // Same relay layout as mvm_cliffside
-Maps.mvm_creepside <- Maps.mvm_cliffside;
+MapPathData.mvm_creepside <- MapPathData.mvm_cliffside;
 
-Maps.mvm_coastrock <- {
+MapPathData.mvm_coastrock <- {
     paths = {
         left = ["bombpath_left"],
         right = ["bombpath_right"],
@@ -338,12 +333,11 @@ Maps.mvm_coastrock <- {
     path_clear = ["bombpath_arrows_clear_relay", "bombpath_clearall_relay"]
 }
 // Same relay layout as mvm_coastrock
-Maps.mvm_meltdown <- Maps.mvm_coastrock;
+MapPathData.mvm_meltdown <- MapPathData.mvm_coastrock;
 // Same relay layout as mvm_coastrock
-Maps.mvm_metro <- Maps.mvm_coastrock;
+MapPathData.mvm_metro <- MapPathData.mvm_coastrock;
 
-// Note: source VDF has Left/Right and Far-left/Far-right swapped relative to relay names
-Maps.mvm_downtown <- {
+MapPathData.mvm_downtown <- {
     paths = {
         left = ["right_relay"],
         right = ["left_relay"],
@@ -355,7 +349,7 @@ Maps.mvm_downtown <- {
 
 // Hanami: three gates (front/mid/back), each path fires one relay per gate.
 // Only the 8 combos listed in the source are included; more are possible.
-Maps.mvm_hanami <- {
+MapPathData.mvm_hanami <- {
     paths = {
         right_right_right = ["bombpath_frontright_relay", "bombpath_midright_relay", "bombpath_backright_relay"],
         right_left_right = ["bombpath_frontright_relay", "bombpath_midleft_relay", "bombpath_backright_relay"],
@@ -369,7 +363,7 @@ Maps.mvm_hanami <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_havana <- {
+MapPathData.mvm_havana <- {
     paths = {
         path_1 = ["bombpath_1_relay"],
         path_2 = ["bombpath_2_relay"],
@@ -379,7 +373,7 @@ Maps.mvm_havana <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_nox <- {
+MapPathData.mvm_nox <- {
     paths = {
         left = ["bombpath_left"],
         right = ["bombpath_right"],
@@ -387,7 +381,7 @@ Maps.mvm_nox <- {
     path_clear = ["bombpath_hologram_clear"]
 }
 
-Maps.mvm_outlands <- {
+MapPathData.mvm_outlands <- {
     paths = {
         left_left = ["path_leftleft_relay"],
         left_right = ["path_leftright_relay"],
@@ -397,7 +391,7 @@ Maps.mvm_outlands <- {
     path_clear = ["path_clearall_relay"]
 }
 
-Maps.mvm_oxidize <- {
+MapPathData.mvm_oxidize <- {
     paths = {
         path_1 = ["activate_route_1"],
         path_2 = ["activate_route_2"],
@@ -405,7 +399,7 @@ Maps.mvm_oxidize <- {
     // path_clear intentionally omitted (none defined)
 }
 
-Maps.mvm_production <- {
+MapPathData.mvm_production <- {
     paths = {
         left = ["bombpath_left_relay"],
         right = ["bombpath_right_relay"],
@@ -416,25 +410,25 @@ Maps.mvm_production <- {
 
 // Shared left/right layout: Akure, Autumnull, Brugge, Boogge, Bloodlust,
 // Dusk, Maple Hill, Null, Oilrig, Sharp, Shank
-Maps.mvm_akure <- {
+MapPathData.mvm_akure <- {
     paths = {
         left = ["bombpath_left_relay"],
         right = ["bombpath_right_relay"],
     }
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
-Maps.mvm_autumnull <- Maps.mvm_akure;
-Maps.mvm_brugge <- Maps.mvm_akure;
-Maps.mvm_boogge <- Maps.mvm_akure;
-Maps.mvm_bloodlust <- Maps.mvm_akure;
-Maps.mvm_dusk <- Maps.mvm_akure;
-Maps.mvm_maplehill <- Maps.mvm_akure;
-Maps.mvm_null <- Maps.mvm_akure;
-Maps.mvm_oilrig <- Maps.mvm_akure;
-Maps.mvm_sharp <- Maps.mvm_akure;
-Maps.mvm_shank <- Maps.mvm_akure;
+MapPathData.mvm_autumnull <- MapPathData.mvm_akure;
+MapPathData.mvm_brugge <- MapPathData.mvm_akure;
+MapPathData.mvm_boogge <- MapPathData.mvm_akure;
+MapPathData.mvm_bloodlust <- MapPathData.mvm_akure;
+MapPathData.mvm_dusk <- MapPathData.mvm_akure;
+MapPathData.mvm_maplehill <- MapPathData.mvm_akure;
+MapPathData.mvm_null <- MapPathData.mvm_akure;
+MapPathData.mvm_oilrig <- MapPathData.mvm_akure;
+MapPathData.mvm_sharp <- MapPathData.mvm_akure;
+MapPathData.mvm_shank <- MapPathData.mvm_akure;
 
-Maps.mvm_derelict <- {
+MapPathData.mvm_derelict <- {
     paths = {
         left_center = ["bombpath_centerleft_relay"],
         left_up = ["bombpath_upperleft_relay"],
@@ -444,9 +438,9 @@ Maps.mvm_derelict <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_hologram_clear"]
 }
 // Same relay layout as mvm_derelict
-Maps.mvm_terrorlict <- Maps.mvm_derelict;
+MapPathData.mvm_terrorlict <- MapPathData.mvm_derelict;
 
-Maps.mvm_heatrock <- {
+MapPathData.mvm_heatrock <- {
     paths = {
         left = ["bombpath_left_relay"],
         right = ["bombpath_right_relay"],
@@ -456,7 +450,7 @@ Maps.mvm_heatrock <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_holograms_clear_relay"]
 }
 
-Maps.mvm_kelly <- {
+MapPathData.mvm_kelly <- {
     paths = {
         left = ["bombpath_left_relay"],
         left_up = ["bombpath_left_upper_relay"],
@@ -467,7 +461,7 @@ Maps.mvm_kelly <- {
 }
 
 // Legerdemain: two zones (forest/town), each path fires one relay per zone.
-Maps.mvm_legerdemain <- {
+MapPathData.mvm_legerdemain <- {
     paths = {
         left = ["bombpath_activate_forest_left", "bombpath_activate_town_left"],
         right = ["bombpath_activate_town_right", "bombpath_activate_forest_right"],
@@ -479,7 +473,7 @@ Maps.mvm_legerdemain <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_arrows_clear_relay"]
 }
 
-Maps.mvm_redstone_ridge <- {
+MapPathData.mvm_redstone_ridge <- {
     paths = {
         path_1 = ["bombpath_1_relay"],
         path_2 = ["bombpath_2_relay"],
@@ -489,7 +483,7 @@ Maps.mvm_redstone_ridge <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_holograms_clear_relay"]
 }
 
-Maps.mvm_skullcove <- {
+MapPathData.mvm_skullcove <- {
     paths = {
         left = ["bombpath_relay_left"],
         right = ["bombpath_relay_right"],
@@ -499,7 +493,7 @@ Maps.mvm_skullcove <- {
     path_clear = ["bombpath_clearall_relay", "bombpath_holograms_clear_relay"]
 }
 
-Maps.mvm_thematic <- {
+MapPathData.mvm_thematic <- {
     paths = {
         left = ["bombpath_choose_left"],
         left_high = ["bombpath_choose_high_left"],
@@ -508,9 +502,9 @@ Maps.mvm_thematic <- {
     // path_clear intentionally omitted (none defined)
 }
 // Same relay layout as mvm_thematic
-Maps.mvm_traumatic <- Maps.mvm_thematic;
+MapPathData.mvm_traumatic <- MapPathData.mvm_thematic;
 
-Maps.mvm_wizardry <- {
+MapPathData.mvm_wizardry <- {
     paths = {
         right = ["set_path_side_right"],
         left = ["set_path_side_left"],
@@ -520,7 +514,7 @@ Maps.mvm_wizardry <- {
     // path_clear intentionally omitted (none defined)
 }
 
-Maps.mvm_yucatan <- {
+MapPathData.mvm_yucatan <- {
     paths = {
         left_1 = ["relay_block_left_1"],
         left_2 = ["relay_pyr_left"],
@@ -575,21 +569,21 @@ if (!startswith(map_name, "mvm")) {
     return;
 }
 
-/** @type {table} */
-local MapData = function() {
-    if (map_name in Maps) {
+/** @type {table|null} */
+local PathData = function() {
+    if (map_name in MapPathData) {
         print("Exact match");
-        return Maps[map_name];
+        return MapPathData[map_name];
     }
 
-    foreach (name, data in Maps) {
+    foreach (name, data in MapPathData) {
         if (startswith(map_name, name)) {
             print("Prefix match");
             return data;
         }
     }
 
-    Print("Current map is not available");
+    Print("Path picking for this map is not available.");
     // To find stuff for new maps
     printl(map_name);
     for (local ent; ent = Entities.FindByClassname(ent, "logic_relay"); ) {
@@ -598,10 +592,6 @@ local MapData = function() {
 
     return null;
 }();
-
-if (!MapData) {
-    return;
-}
 
 /** @type {string|null} */
 local LastPath = null;
@@ -617,11 +607,40 @@ local function SetPath() {
         }
     }
 
-    if ("path_clear" in MapData) {
-        TriggerLoop(MapData.path_clear, 0.0);
-        TriggerLoop(MapData.paths[LastPath], 0.2);
+    if ("path_clear" in PathData) {
+        TriggerLoop(PathData.path_clear, 0.0);
+        TriggerLoop(PathData.paths[LastPath], 0.2);
     } else {
-        TriggerLoop(MapData.paths[LastPath], 0.0);
+        TriggerLoop(PathData.paths[LastPath], 0.0);
+    }
+}
+
+/**
+ * @type {function}
+ * @param {integer} wave_number
+ * @param {bool} with_clean_cash
+ */
+local function JumpToWave(wave_number, with_clean_cash) {
+    if (Convars.GetInt("sv_cheats") == 0) {
+        Print("Warning: 'sv_cheats' are set to 0, 'tf_mvm_jump_to_wave' cannot be utilised.");
+        return;
+    }
+
+    local second_param = with_clean_cash ? "1" : "-1";
+
+    SendToConsole(format("tf_mvm_jump_to_wave %d %s", wave_number, second_param));
+}
+
+local function string_to_bool(argument) {
+    switch (argument) {
+    case "1":
+    case "true":
+        return true
+    case "0":
+    case "false":
+        return false;
+    default:
+        return null;
     }
 }
 
@@ -630,19 +649,19 @@ local function SetPath() {
  * @param {[string]} arguments
  */
 local function HandlePathCommand(arguments) {
-    if (!("paths" in MapData)) {
+    if (!PathData || !("paths" in PathData)) {
         Print("Current map does not support path picking");
         return;
     }
 
     if (arguments.len() == 0) {
-        local available_paths = MapData.paths.keys().reduce(@(pre, current) pre + "\n" + current, "");
+        local available_paths = PathData.paths.keys().reduce(@(pre, current) pre + "\n" + current, "");
         Print("Usage: !path <path_literal: string>\nAvailable paths: " + available_paths);
         return;
     }
 
-    if (!(arguments[0] in MapData.paths)) {
-        local available_paths = MapData.paths.keys().reduce(@(pre, current) pre + "\n" + current, "");
+    if (!(arguments[0] in PathData.paths)) {
+        local available_paths = PathData.paths.keys().reduce(@(pre, current) pre + "\n" + current, "");
         Print(format("Unknown path: '%s'\nAvailable paths: %s", arguments[0], available_paths));
         return;
     }
@@ -668,11 +687,21 @@ local function HandleStartCommand(_arguments) {
 
 /**
  * @type {function}
- * @param {[string]} _arguments
+ * @param {[string]} arguments
  */
-local function HandleRestartCommand(_arguments) {
+local function HandleRestartCommand(arguments) {
     local current_wave = NetProps.GetPropInt(OBJECTIVE_RESOURCE, "m_nMannVsMachineWaveCount");
-    SendToConsole("tf_mvm_jump_to_wave " + current_wave);
+    if (arguments.len() == 0) {
+        JumpToWave(current_wave, false);
+        return;
+    }
+
+    local with_clean_cash = string_to_bool(arguments[0]);
+    if (with_clean_cash == null) {
+        Print("Unknown bool argument, valid options are: 0|1|false|true")
+        return;
+    }
+    JumpToWave(current_wave, with_clean_cash);
 }
 
 /**
@@ -681,7 +710,7 @@ local function HandleRestartCommand(_arguments) {
  */
 local function HandleWaveCommand(arguments) {
     if (arguments.len() == 0) {
-        Print("Usage: !wave <wave_number: integer>")
+        Print("Usage: !wave <wave_number: integer> <with_clean_cash?: 0|1|false|true = true>")
         return;
     }
 
@@ -699,7 +728,18 @@ local function HandleWaveCommand(arguments) {
         return;
     }
 
-    SendToConsole("tf_mvm_jump_to_wave " + wave);
+    if (arguments.len() == 1) {
+        JumpToWave(wave, true);
+        return;
+    }
+
+    local with_clean_cash = string_to_bool(arguments[0]);
+    if (with_clean_cash == null) {
+        Print("Unknown bool argument, valid options are: 0|1|false|true")
+        return;
+    }
+
+    JumpToWave(current_wave, with_clean_cash);
 }
 
 /**
@@ -730,19 +770,6 @@ local function HandleCashCommand(arguments) {
     }
 }
 
-local function toggle_switch(argument) {
-    switch (argument) {
-    case "1":
-    case "true":
-        return true
-    case "0":
-    case "false":
-        return false;
-    default:
-        Print("Unknown toggle argument, valid options are: 0|1|false|true")
-        return null;
-    }
-}
 
 /**
  * @type {function}
@@ -755,8 +782,9 @@ local function HandleKeepMapCommand(arguments) {
         return;
     }
 
-    local new = toggle_switch(arguments[0]);
+    local new = string_to_bool(arguments[0]);
     if (new == null) {
+        Print("Unknown toggle argument, valid options are: 0|1|false|true")
         return;
     }
 
@@ -769,7 +797,7 @@ local function HandleKeepMapCommand(arguments) {
  * @param {[string]} arguments
  */
 local function HandleKeepPathCommand(arguments) {
-    if (!("paths" in MapData)) {
+    if (!PathData || !("paths" in PathData)) {
         Print("Current map does not support path picking");
         return;
     }
@@ -778,8 +806,9 @@ local function HandleKeepPathCommand(arguments) {
         KeepPath = !KeepPath;
         Print("KeepPath toggled to: " + KeepPath);
     } else {
-        local new = toggle_switch(arguments[0]);
+        local new = string_to_bool(arguments[0]);
         if (new == null) {
+            Print("Unknown toggle argument, valid options are: 0|1|false|true")
             return;
         }
 
@@ -807,8 +836,9 @@ local function HandleOneShotCommand(arguments) {
         return;
     }
 
-    local new = toggle_switch(arguments[0]);
+    local new = string_to_bool(arguments[0]);
     if (new == null) {
+        Print("Unknown toggle argument, valid options are: 0|1|false|true")
         return;
     }
 
@@ -825,8 +855,9 @@ local function HandleRegenCommand(arguments) {
         Regen = !Regen;
         Print("Regen toggled to: " + Regen);
     } else {
-        local new = toggle_switch(arguments[0]);
+        local new = string_to_bool(arguments[0]);
         if (new == null) {
+            Print("Unknown toggle argument, valid options are: 0|1|false|true")
             return;
         }
 
@@ -994,6 +1025,6 @@ __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
             return;
         }
 
-        RunWithDelay(@() SendToConsole("tf_mvm_jump_to_wave 1"), 15);
+        RunWithDelay(@() JumpToWave(1, true), 15);
     }
 });
