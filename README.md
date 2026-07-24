@@ -2,8 +2,8 @@
 Provides a set of chat commands that help with testing or just completing the mission on local servers.
 
 ## Usage instructions
-Put this file in `tf/scripts/vscripts/`. After creating a server use `script_execute mvm_utilities`
-or paste this command in `tf/cfg/listenserver.cfg` to run it automatically on server creation.
+Put `mvm_utilities.nut` in `tf/scripts/vscripts/`. After creating a server enable `sv_cheats` and then use `script_execute mvm_utilities`.
+Another way would be to copy `listenserver.cfg` in `tf/cfg/` directory to run the script automatically upon server creation.
 
 ## Command list
 
@@ -23,16 +23,16 @@ Keeps the forced paths through wave completions/losses, has no effect unless `!p
 Starts the next wave without the countdown.
 
 ### !restart
-**Usage:** `!restart`.
+**Usage:** `!restart <with_clean_cash?: 0|1|false|true = false>`.
 
-Restarts the game (can work either in setup time or during the wave).
+Restarts the current wave (can work either in setup time or during the wave).
+`with_clean_cash` determines whether all upgrades are reset and cash is set to the maximum achievable one for this wave.
 
 ### !wave
-**Usage:** `!wave <wave_number: integer>`.
+**Usage:** `!wave <wave_number: integer> <with_clean_cash?: 0|1|false|true = true>`.
 
-Jumps to the given wave
-> [!WARNING]
-> Does not figure out the cash that comes with the corresponding wave and therefore it must be given manually if needed.
+Jumps to the given wave.
+`with_clean_cash` determines whether all upgrades are reset and cash is set to the maximum achievable one for this wave.
 
 ### !cash
 **Usage:** `!cash <amount: integer>`.
