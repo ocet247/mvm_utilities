@@ -10,7 +10,7 @@
 - Add example listenserver.cfg
 
 ## 1.3
-- Fix sentry rockets damaging itself causing a server crash with !oneshot
+- Fix !oneshot causing a server crash when player's sentry damages itself
 - Fix wave jumping not giving cash bonus
 - Fix !wave `with_clean_cash` having no effect
 - Change the way !restart works to also reset upgrades in order to avoid negative cash>
