@@ -37,12 +37,17 @@ local KeepMap = true;
 const HUD_PRINTTALK = 3;
 const ID_BEGGARS_BAZOOKA = 730;
 const GR_STATE_PREROUND = 3;
+const DMG_CRIT = 1048576;
 
 /** @const */
 local MAX_CLIENTS = MaxClients().tointeger();
 
 /** @const */
 local OBJECTIVE_RESOURCE = Entities.FindByClassname(null, "tf_objective_resource");
+
+/** @const */
+local MVM_STATS = Entities.FindByClassname(null, "tf_mann_vs_machine_stats");
+
 
 local MapPathData = {};
 
@@ -529,8 +534,11 @@ local function dummy_ent() {
 	local dummy = Entities.CreateByClassname("logic_relay");
 	NetProps.SetPropBool(dummy, "m_bForcePurgeFixedupStrings", true);
 	dummy.ValidateScriptScope();
+    // To prevent deletion on round restart
+    NetProps.SetPropString(dummy, "m_iClassname", "worldspawn");
     return dummy;
 }
+
 
 local function RunWithDelay(func, delay = 0.0) {
     local relay = dummy_ent();
@@ -672,10 +680,6 @@ local function HandlePathCommand(arguments) {
 }
 
 
-/**
- * @type {function}
- * @param {[string]} _arguments
- */
 local function HandleStartCommand(_arguments) {
     if (!IsQuickBuildTime()) {
         Print("The wave has already started");
@@ -687,21 +691,13 @@ local function HandleStartCommand(_arguments) {
 
 /**
  * @type {function}
- * @param {[string]} arguments
+ * @param {[string]} _arguments
  */
-local function HandleRestartCommand(arguments) {
-    local current_wave = NetProps.GetPropInt(OBJECTIVE_RESOURCE, "m_nMannVsMachineWaveCount");
-    if (arguments.len() == 0) {
-        JumpToWave(current_wave, false);
-        return;
+local function HandleRestartCommand(_arguments) {
+    SendToConsole("mp_restartgame_immediate 1");
+    if (IsQuickBuildTime()) {
+        RunWithDelay(@() SendToConsole("mp_restartgame_immediate 1"), 1);
     }
-
-    local with_clean_cash = string_to_bool(arguments[0]);
-    if (with_clean_cash == null) {
-        Print("Unknown bool argument, valid options are: 0|1|false|true")
-        return;
-    }
-    JumpToWave(current_wave, with_clean_cash);
 }
 
 /**
@@ -724,7 +720,7 @@ local function HandleWaveCommand(arguments) {
 
     local max_wave = NetProps.GetPropInt(OBJECTIVE_RESOURCE, "m_nMannVsMachineMaxWaveCount");
     if (wave > max_wave) {
-        Print(format("Wave '%d' exceed the possible number of waves ('%d')", wave, max_wave));
+        Print(format("Wave number is out of bounds [1, %d]", max_wave));
         return;
     }
 
@@ -733,13 +729,13 @@ local function HandleWaveCommand(arguments) {
         return;
     }
 
-    local with_clean_cash = string_to_bool(arguments[0]);
+    local with_clean_cash = string_to_bool(arguments[1]);
     if (with_clean_cash == null) {
         Print("Unknown bool argument, valid options are: 0|1|false|true")
         return;
     }
 
-    JumpToWave(current_wave, with_clean_cash);
+    JumpToWave(wave, with_clean_cash);
 }
 
 /**
@@ -748,25 +744,47 @@ local function HandleWaveCommand(arguments) {
  */
 local function HandleCashCommand(arguments) {
     if (arguments.len() == 0) {
-        Print("Usage: !cash <cash_amount: integer>")
+        Print("Usage: !cash <cash_amount: integer> <is_persistent?: bool = true>")
         return;
     }
 
-    local cash;
+    local additional_cash;
     try {
-        cash = arguments[0].tointeger();
+        additional_cash = arguments[0].tointeger();
     } catch (e) {
         Print("Received a non-integer argument");
         return;
     }
 
+    local is_persistent;
+    if (arguments.len() == 1) {
+        is_persistent = true;
+    } else {
+        local value = string_to_bool(arguments[1]);
+        if (value == null) {
+            Print("Unknown bool argument, valid options are: 0|1|false|true")
+            return;
+        }
+        is_persistent = value;
+    }
+
+
     for (local i = 1; i < MAX_CLIENTS; i++) {
         local player = PlayerInstanceFromIndex(i);
-        if (!player || player instanceof CTFBot) {
+        if (!player) {
             continue;
         }
 
-        NetProps.SetPropInt(player, "m_nCurrency", cash);
+        local current_cash = NetProps.GetPropInt(player, "m_nCurrency");
+        NetProps.SetPropInt(player, "m_nCurrency", current_cash + additional_cash);
+    }
+
+    if (is_persistent) {
+        local acquired = NetProps.GetPropInt(MVM_STATS, "m_runningTotalWaveStats.nCreditsAcquired");
+        NetProps.SetPropInt(MVM_STATS, "m_runningTotalWaveStats.nCreditsAcquired", acquired + additional_cash);
+
+        local dropped = NetProps.GetPropInt(MVM_STATS, "m_runningTotalWaveStats.nCreditsDropped");
+        NetProps.SetPropInt(MVM_STATS, "m_runningTotalWaveStats.nCreditsDropped", dropped + additional_cash);
     }
 }
 
@@ -882,8 +900,6 @@ local function HandleRegenCommand(arguments) {
     }
 
     RegenEnt = dummy_ent();
-    // To prevent deletion on round restart
-    NetProps.SetPropString(RegenEnt, "m_iClassname", "worldspawn");
     RegenEnt.GetScriptScope().Think <- function() {
         for (local i = 1; i < MAX_CLIENTS; i++) {
             local player = PlayerInstanceFromIndex(i);
@@ -990,15 +1006,32 @@ __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
             return;
         }
 
-        if (params.const_entity == params.attacker || params.attacker == null) {
+        if (params.attacker == null || params.const_entity == params.attacker) {
             return;
         }
 
-        if (params.attacker instanceof CTFPlayer && !(params.attacker instanceof CTFBot)) {
-            params.const_entity.SetHealth(0);
-            // Needed for buildings (perhaps for something else too)
-            params.const_entity.AcceptInput("SetHealth", "0", null, null);
+        if (!(params.const_entity instanceof CBaseCombatCharacter)) {
+            return;
         }
+
+        if (NetProps.GetPropEntity(params.const_entity, "m_hBuilder") == params.attacker) {
+            return;
+        }
+
+        // If victim is a player, don't one shot them
+        // if (params.const_entity instanceof CTFPlayer && !(params.const_entity instanceof CTFBot)) {
+        //     return;
+        // }
+
+        if (!(params.attacker instanceof CTFPlayer) || params.attacker instanceof CTFBot) {
+            return;
+        }
+
+        params.const_entity.SetHealth(0);
+        // Needed for buildings (perhaps for something else too)
+        params.const_entity.AcceptInput("SetHealth", "0", null, null);
+        // none or crit, needed to bypass some game checks so the damage is actually dealt
+        params.damage_type = params.damage_type & DMG_CRIT;
     }
 
     function OnGameEvent_player_hurt(params) {
@@ -1026,5 +1059,28 @@ __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
         }
 
         RunWithDelay(@() JumpToWave(1, true), 15);
+    }
+
+    // Fix tf_jump_to_wave not having a bonus
+    function OnGameEvent_mvm_reset_stats(_params) {
+        local wave = NetProps.GetPropInt(OBJECTIVE_RESOURCE, "m_nMannVsMachineWaveCount");
+        if (wave == 1) {
+            return;
+        }
+
+        local bonus = (wave - 1) * 100;
+        NetProps.SetPropInt(MVM_STATS, "m_runningTotalWaveStats.nCreditsBonus", bonus - 100);
+        NetProps.SetPropInt(MVM_STATS, "m_previousWaveStats.nCreditsBonus", 100);
+
+        // Hack to not reset the game: set untracked cash for all players
+        for (local i = 1; i < MAX_CLIENTS; i++) {
+            local player = PlayerInstanceFromIndex(i);
+            if (!player) {
+                continue;
+            }
+
+            local current_cash = NetProps.GetPropInt(player, "m_nCurrency");
+            NetProps.SetPropInt(player, "m_nCurrency", current_cash + bonus);
+        }
     }
 });

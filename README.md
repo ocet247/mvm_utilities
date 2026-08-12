@@ -23,10 +23,9 @@ Keeps the forced paths through wave completions/losses, has no effect unless `!p
 Starts the next wave without the countdown.
 
 ### !restart
-**Usage:** `!restart <with_clean_cash?: 0|1|false|true = false>`.
+**Usage:** `!restart`.
 
 Restarts the current wave (can work either in setup time or during the wave).
-`with_clean_cash` determines whether all upgrades are reset and cash is set to the maximum achievable one for this wave.
 
 ### !wave
 **Usage:** `!wave <wave_number: integer> <with_clean_cash?: 0|1|false|true = true>`.
@@ -35,9 +34,10 @@ Jumps to the given wave.
 `with_clean_cash` determines whether all upgrades are reset and cash is set to the maximum achievable one for this wave.
 
 ### !cash
-**Usage:** `!cash <amount: integer>`.
+**Usage:** `!cash <amount: integer> <is_persistent?: bool = true>`.
 
-Sets the cash for all players to a given amount.
+Adds the cash for all players to a given amount.
+`is_persistent` determines whether cash should persist between wave restarts.
 
 ### !keepmap or !keep_map
 **Usage:** `!keepmap <toggle: 0|1|true|false>` or `!keepmap` to toggle.
