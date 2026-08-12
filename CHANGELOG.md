@@ -13,5 +13,5 @@
 - Fix !oneshot causing a server crash when player's sentry damages itself
 - Fix wave jumping not giving cash bonus
 - Fix !wave `with_clean_cash` having no effect
-- Change the way !restart works to also reset upgrades in order to avoid negative cash>
+- Change the way !restart works to also reset upgrades in order to avoid negative cash
 - Switch !cash from setting cash to adding cash. Add `is_persistent` parameter
