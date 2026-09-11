@@ -39,6 +39,12 @@ Jumps to the given wave.
 Adds the cash for all players to a given amount.
 `is_persistent` determines whether cash should persist between wave restarts.
 
+### !keepbuildings or !keep_buildings
+**Usage:** `!keepbuildings <toggle: 0|1|true|false>` or `!keepbuildings` to toggle.
+
+Whether to save buildings on wave start and rebuild them at the saved placements on wave restart.
+Has some issues with disposable sentries.
+
 ### !keepmap or !keep_map
 **Usage:** `!keepmap <toggle: 0|1|true|false>` or `!keepmap` to toggle.
 
