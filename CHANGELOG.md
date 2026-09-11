@@ -15,3 +15,8 @@
 - Fix !wave `with_clean_cash` having no effect
 - Change the way !restart works to also reset upgrades in order to avoid negative cash. Remove `with_clean_cash` parameter
 - Switch !cash from setting cash to adding cash. Add `is_persistent` parameter
+
+## V4
+- Fix !keeppath not working on Mannworks due to extra delays in the map logic.
+- Don't force `sv_cheats 1` anymore and set them on the fly instead.
+- Add !keep_buildings command.

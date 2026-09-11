@@ -2,8 +2,12 @@
 Provides a set of chat commands that help with testing or just completing the mission on local servers.
 
 ## Usage instructions
-Put `mvm_utilities.nut` in `tf/scripts/vscripts/`. After creating a server enable `sv_cheats` and then use `script_execute mvm_utilities`.
-Another way would be to copy `listenserver.cfg` in `tf/cfg/` directory to run the script automatically upon server creation.
+Put `mvm_utilities.nut` in `tf/scripts/vscripts/`. After creating a server use `script_execute mvm_utilities` and you're set.
+Another way would be add this command in `tf/cfg/listenserver.cfg` (create this file if needed) to run the script automatically upon server creation.
+> [!NOTE]
+> Setting `sv_cheats` to 0 changes exiting upgrade station behaviour - your upgrades will be cancelled instead of being saved which can be
+> quite obnoxious to work with. Instead I suggest keeping it at 0 and if cheats are needed, wrap them between `sv_cheats 1/0`.
+> E.g. `sv_cheats 1;noclip;sv_cheats 0`.
 
 ## Command list
 
