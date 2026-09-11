@@ -32,12 +32,21 @@ local Regen = false;
  */
 local KeepMap = true;
 
+/**
+ * Whether to save building placements on wave start and
+ * rebuild them on wave restart.
+ * @type {bool}
+ */
+local KeepBuildings = true;
+
 
 // Internals
 const HUD_PRINTTALK = 3;
 const ID_BEGGARS_BAZOOKA = 730;
 const GR_STATE_PREROUND = 3;
 const DMG_CRIT = 1048576;
+const MAX_WEAPONS = 8;
+const LOADOUT_POSITION_UTILITY = 3;
 
 /** @const */
 local MAX_CLIENTS = MaxClients().tointeger();
@@ -47,6 +56,9 @@ local OBJECTIVE_RESOURCE = Entities.FindByClassname(null, "tf_objective_resource
 
 /** @const */
 local MVM_STATS = Entities.FindByClassname(null, "tf_mann_vs_machine_stats");
+
+/** @const */
+local GAMERULES = Entities.FindByClassname(null, "tf_gamerules");
 
 
 local MapPathData = {};
@@ -580,7 +592,7 @@ if (!startswith(map_name, "mvm")) {
 /** @type {table|null} */
 local PathData = function() {
     if (map_name in MapPathData) {
-        print("Exact match");
+        printl("Exact match");
         return MapPathData[map_name];
     }
 
@@ -604,6 +616,7 @@ local PathData = function() {
 /** @type {string|null} */
 local LastPath = null;
 local RegenEnt = null;
+local Buildings = [];
 
 local function SetPath() {
     local function TriggerLoop(arr, delay) {
@@ -629,21 +642,62 @@ local function SetPath() {
  * @param {bool} with_clean_cash
  */
 local function JumpToWave(wave_number, with_clean_cash) {
-    if (Convars.GetInt("sv_cheats") == 0) {
-        Print("Warning: 'sv_cheats' are set to 0, 'tf_mvm_jump_to_wave' cannot be utilised.");
-        return;
+    local sv_cheats = Convars.GetInt("sv_cheats");
+    local second_param = with_clean_cash ? "1" : "-1";
+    SendToConsole(format("sv_cheats 1;tf_mvm_jump_to_wave %d %s;sv_cheats %d", wave_number, second_param, sv_cheats));
+}
+
+/**
+ * @type {function}
+ * @yields {CTFPlayer}
+ */
+local function GetPlayers() {
+    for (local i = 1; i <= MAX_CLIENTS; i++) {
+        local player = PlayerInstanceFromIndex(i);
+        if (!player) {
+            continue;
+        }
+    }
+}
+
+local function GetPDA(player) {
+    for (local i = 0; i < MAX_WEAPONS; i++) {
+        /** @type {CTFWeaponBase|null} */
+        local weapon = NetProps.GetPropEntityArray(player, "m_hMyWeapons", i)
+        if (!weapon || weapon.GetSlot() != LOADOUT_POSITION_UTILITY) {
+            continue;
+        }
+
+        return weapon
+    }
+    return null;
+}
+
+/**
+ * @type {function}
+ * @param {table} building
+ * @param {CTFWeaponBase} pda
+ * @returns {integer}
+ */
+local function GetBuildingHealth(building, pda) {
+    local health = building.is_mini ? 100 : 150;
+
+    if (!building.is_disposable) {
+        health = (health * pda.GetAttribute("engy building health bonus", 1.0)).tointeger();
     }
 
-    local second_param = with_clean_cash ? "1" : "-1";
+    if (!building.is_mini && building.upgrade_level > 1) {
+        health = (health * pow(1.2, building.upgrade_level - 1)).tointeger();
+    }
 
-    SendToConsole(format("tf_mvm_jump_to_wave %d %s", wave_number, second_param));
+    return health;
 }
 
 local function string_to_bool(argument) {
     switch (argument) {
     case "1":
     case "true":
-        return true
+        return true;
     case "0":
     case "false":
         return false;
@@ -679,6 +733,9 @@ local function HandlePathCommand(arguments) {
     Print(format("Path '%s' has been activated", LastPath));
 }
 
+local function restart() {
+    NetProps.SetPropFloat(GAMERULES, "m_flRestartRoundTime", 0.01);
+}
 
 local function HandleStartCommand(_arguments) {
     if (!IsQuickBuildTime()) {
@@ -686,7 +743,7 @@ local function HandleStartCommand(_arguments) {
         return;
     }
 
-    SendToConsole("mp_restartgame_immediate 1");
+    restart();
 }
 
 /**
@@ -694,9 +751,9 @@ local function HandleStartCommand(_arguments) {
  * @param {[string]} _arguments
  */
 local function HandleRestartCommand(_arguments) {
-    SendToConsole("mp_restartgame_immediate 1");
+    restart();
     if (IsQuickBuildTime()) {
-        RunWithDelay(@() SendToConsole("mp_restartgame_immediate 1"), 1);
+        RunWithDelay(restart, 1.5);
     }
 }
 
@@ -769,12 +826,7 @@ local function HandleCashCommand(arguments) {
     }
 
 
-    for (local i = 1; i < MAX_CLIENTS; i++) {
-        local player = PlayerInstanceFromIndex(i);
-        if (!player) {
-            continue;
-        }
-
+    foreach (player in GetPlayers()) {
         local current_cash = NetProps.GetPropInt(player, "m_nCurrency");
         NetProps.SetPropInt(player, "m_nCurrency", current_cash + additional_cash);
     }
@@ -847,6 +899,27 @@ local function HandleKeepPathCommand(arguments) {
  * @type {function}
  * @param {[string]} arguments
  */
+local function HandleKeepBuildingsCommand(arguments) {
+    if (arguments.len() == 0) {
+        KeepBuildings = !KeepBuildings;
+        Print("KeepBuildings toggled to: " + KeepBuildings);
+        return;
+    }
+
+    local new = string_to_bool(arguments[0]);
+    if (new == null) {
+        Print("Unknown toggle argument, valid options are: 0|1|false|true")
+        return;
+    }
+
+    KeepBuildings = new;
+    Print("KeepBuildings set to: " + KeepBuildings);
+}
+
+/**
+ * @type {function}
+ * @param {[string]} arguments
+ */
 local function HandleOneShotCommand(arguments) {
     if (arguments.len() == 0) {
         OneShot = !OneShot;
@@ -890,9 +963,8 @@ local function HandleRegenCommand(arguments) {
         return;
     }
 
-    for (local i = 1; i < MAX_CLIENTS; i++) {
-        local player = PlayerInstanceFromIndex(i);
-        if (!player || player instanceof CTFBot) {
+    foreach (player in GetPlayers()) {
+        if (player instanceof CTFBot) {
             continue;
         }
 
@@ -901,9 +973,8 @@ local function HandleRegenCommand(arguments) {
 
     RegenEnt = dummy_ent();
     RegenEnt.GetScriptScope().Think <- function() {
-        for (local i = 1; i < MAX_CLIENTS; i++) {
-            local player = PlayerInstanceFromIndex(i);
-            if (!player || player instanceof CTFBot) {
+        foreach (player in GetPlayers()) {
+            if (player instanceof CTFBot) {
                 continue;
             }
 
@@ -985,13 +1056,90 @@ __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
         }
     }
 
+    function OnGameEvent_mvm_begin_wave(_params) {
+        if (!KeepBuildings) {
+            return;
+        }
+
+        Buildings.clear();
+        for (local obj; obj = Entities.FindByClassname(obj, "obj_*");) {
+            NetProps.SetPropBool(obj, "m_bForcePurgeFixedupStrings", true);
+
+            local builder = NetProps.GetPropEntity(obj, "m_hBuilder");
+            if (!builder) {
+                continue;
+            }
+
+            printl(NetProps.GetPropBool(obj, "m_bDisposableBuilding"));
+
+            local building = {
+                classname = obj.GetClassname(),
+                origin = obj.GetOrigin(),
+                angles = obj.GetAbsAngles(),
+                team = obj.GetTeam(),
+                upgrade_level = NetProps.GetPropInt(obj, "m_iUpgradeLevel"),
+                builder = builder,
+                is_mini = NetProps.GetPropBool(obj, "m_bMiniBuilding"),
+                is_disposable = NetProps.GetPropBool(obj, "m_bDisposableBuilding"),
+            };
+
+            if (NetProps.HasProp(obj, "m_iTeleportType")) {
+                building.teleporter_type <- NetProps.GetPropInt(obj, "m_iTeleportType");
+            }
+
+            Buildings.push(building);
+        }
+    }
+
     function OnGameEvent_recalculate_holidays(_params) {
         if (GetRoundState() != GR_STATE_PREROUND) {
             return;
         }
 
         if (KeepPath && LastPath != null) {
-            RunWithDelay(SetPath, 1.0);
+            RunWithDelay(SetPath, 6.0);
+        }
+
+        if (KeepBuildings) {
+            foreach (building in Buildings) {
+                if (!building.builder.IsValid()) {
+                    continue;
+                }
+
+                local pda = GetPDA(building.builder);
+                // Can't build anymore
+                if (!pda) {
+                    continue;
+                }
+
+                local keyvalues = {
+                    origin = building.origin,
+                    angles = building.angles,
+                    teamnum = building.team,
+                    defaultupgrade = building.upgrade_level - 1,
+                    modelscale = building.is_disposable ? 0.6 : (building.is_mini ? 0.75 : 1.0),
+                };
+                if ("teleporter_type" in building) {
+                    keyvalues.teleporterType <- building.teleporter_type;
+                }
+
+                /** @type {CBaseCombatCharacter} */
+                local obj = SpawnEntityFromTable(building.classname, keyvalues);
+                obj.SetSkin(building.team);
+
+                local health = GetBuildingHealth(building, pda);
+                obj.AcceptInput("SetHealth", health.tostring(), null, null);
+
+
+                NetProps.SetPropBool(obj, "m_bMiniBuilding", building.is_mini);
+                // Need a delay, otherwise mini buildings are destroyed
+                EntFireByHandle(obj, "SetBuilder", "!activator", 0.0, building.builder, null);
+
+                // Need a builder before setting this to true, therefore delay is needed
+                if (building.is_disposable) {
+                    RunWithDelay(@() NetProps.SetPropBool(obj, "m_bDisposableBuilding", true), 0.0);
+                }
+            }
         }
     }
 
@@ -1061,7 +1209,7 @@ __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
         RunWithDelay(@() JumpToWave(1, true), 15);
     }
 
-    // Fix tf_jump_to_wave not having a bonus
+    // Fix tf_mvm_jump_to_wave not having a bonus
     function OnGameEvent_mvm_reset_stats(_params) {
         local wave = NetProps.GetPropInt(OBJECTIVE_RESOURCE, "m_nMannVsMachineWaveCount");
         if (wave == 1) {
@@ -1072,13 +1220,8 @@ __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
         NetProps.SetPropInt(MVM_STATS, "m_runningTotalWaveStats.nCreditsBonus", bonus - 100);
         NetProps.SetPropInt(MVM_STATS, "m_previousWaveStats.nCreditsBonus", 100);
 
-        // Hack to not reset the game: set untracked cash for all players
-        for (local i = 1; i < MAX_CLIENTS; i++) {
-            local player = PlayerInstanceFromIndex(i);
-            if (!player) {
-                continue;
-            }
-
+        // Hack to not reset the round: add untracked cash for all players
+        foreach (player in GetPlayers()) {
             local current_cash = NetProps.GetPropInt(player, "m_nCurrency");
             NetProps.SetPropInt(player, "m_nCurrency", current_cash + bonus);
         }
