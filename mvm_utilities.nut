@@ -657,6 +657,7 @@ local function GetPlayers() {
         if (!player) {
             continue;
         }
+        yield player;
     }
 }
 
