@@ -1029,6 +1029,8 @@ local commands_map = {
     "keep_map": HandleKeepMapCommand,
     "keeppath": HandleKeepPathCommand,
     "keep_path": HandleKeepPathCommand,
+    "keepbuildings": HandleKeepBuildingsCommand,
+    "keep_buildings": HandleKeepBuildingsCommand,
     "oneshot": HandleOneShotCommand,
     "one_shot": HandleOneShotCommand,
     "regen": HandleRegenCommand,
