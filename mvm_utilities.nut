@@ -44,9 +44,12 @@ local KeepBuildings = true;
 const HUD_PRINTTALK = 3;
 const ID_BEGGARS_BAZOOKA = 730;
 const GR_STATE_PREROUND = 3;
+const DMG_GENERIC = 0;
 const DMG_CRIT = 1048576;
 const MAX_WEAPONS = 8;
 const LOADOUT_POSITION_UTILITY = 3;
+const TF_TEAM_PVE_INVADERS = 3;
+const TF_TEAM_PVE_INVADERS_GIANTS = 4;
 
 /** @const */
 local MAX_CLIENTS = MaxClients().tointeger();
@@ -664,6 +667,7 @@ local function GetPlayers() {
         if (!player) {
             continue;
         }
+
         yield player;
     }
 }
@@ -716,9 +720,10 @@ local function string_to_bool(argument) {
 
 /**
  * @type {function}
+ * @param {CTFPlayer} _activator
  * @param {[string]} arguments
  */
-local function HandlePathCommand(arguments) {
+local function HandlePathCommand(_activator, arguments) {
     if (!PathData || !("paths" in PathData)) {
         Print("Current map does not support path picking");
         return;
@@ -745,7 +750,12 @@ local function restart() {
     NetProps.SetPropFloat(GAMERULES, "m_flRestartRoundTime", 0.01);
 }
 
-local function HandleStartCommand(_arguments) {
+/**
+ * @type {function}
+ * @param {CTFPlayer} _activator
+ * @param {[string]} _arguments
+ */
+local function HandleStartCommand(_activator, _arguments) {
     if (!IsQuickBuildTime()) {
         Print("The wave has already started");
         return;
@@ -756,9 +766,10 @@ local function HandleStartCommand(_arguments) {
 
 /**
  * @type {function}
+ * @param {CTFPlayer} _activator
  * @param {[string]} _arguments
  */
-local function HandleRestartCommand(_arguments) {
+local function HandleRestartCommand(_activator, _arguments) {
     restart();
     if (IsQuickBuildTime()) {
         RunWithDelay(restart, 1.5);
@@ -767,9 +778,10 @@ local function HandleRestartCommand(_arguments) {
 
 /**
  * @type {function}
+ * @param {CTFPlayer} _activator
  * @param {[string]} arguments
  */
-local function HandleWaveCommand(arguments) {
+local function HandleWaveCommand(_activator, arguments) {
     if (arguments.len() == 0) {
         Print("Usage: !wave <wave_number: integer> <with_clean_cash?: 0|1|false|true = true>")
         return;
@@ -805,9 +817,10 @@ local function HandleWaveCommand(arguments) {
 
 /**
  * @type {function}
+ * @param {CTFPlayer} _activator
  * @param {[string]} arguments
  */
-local function HandleCashCommand(arguments) {
+local function HandleCashCommand(_activator, arguments) {
     if (arguments.len() == 0) {
         Print("Usage: !cash <cash_amount: integer> <is_persistent?: bool = true>")
         return;
@@ -851,9 +864,10 @@ local function HandleCashCommand(arguments) {
 
 /**
  * @type {function}
+ * @param {CTFPlayer} _activator
  * @param {[string]} arguments
  */
-local function HandleKeepMapCommand(arguments) {
+local function HandleKeepMapCommand(_activator, arguments) {
     if (arguments.len() == 0) {
         KeepMap = !KeepMap;
         Print("KeepMap toggled to: " + KeepMap);
@@ -872,9 +886,10 @@ local function HandleKeepMapCommand(arguments) {
 
 /**
  * @type {function}
+ * @param {CTFPlayer} _activator
  * @param {[string]} arguments
  */
-local function HandleKeepPathCommand(arguments) {
+local function HandleKeepPathCommand(_activator, arguments) {
     if (!PathData || !("paths" in PathData)) {
         Print("Current map does not support path picking");
         return;
@@ -905,9 +920,10 @@ local function HandleKeepPathCommand(arguments) {
 
 /**
  * @type {function}
+ * @param {CTFPlayer} _activator
  * @param {[string]} arguments
  */
-local function HandleKeepBuildingsCommand(arguments) {
+local function HandleKeepBuildingsCommand(_activator, arguments) {
     if (arguments.len() == 0) {
         KeepBuildings = !KeepBuildings;
         Print("KeepBuildings toggled to: " + KeepBuildings);
@@ -926,9 +942,10 @@ local function HandleKeepBuildingsCommand(arguments) {
 
 /**
  * @type {function}
+ * @param {CTFPlayer} _activator
  * @param {[string]} arguments
  */
-local function HandleOneShotCommand(arguments) {
+local function HandleOneShotCommand(_activator, arguments) {
     if (arguments.len() == 0) {
         OneShot = !OneShot;
         Print("OneShot toggled to: " + OneShot);
@@ -947,9 +964,10 @@ local function HandleOneShotCommand(arguments) {
 
 /**
  * @type {function}
+ * @param {CTFPlayer} _activator
  * @param {[string]} arguments
  */
-local function HandleRegenCommand(arguments) {
+local function HandleRegenCommand(_activator, arguments) {
     if (arguments.len() == 0) {
         Regen = !Regen;
         Print("Regen toggled to: " + Regen);
@@ -1011,21 +1029,44 @@ local function HandleRegenCommand(arguments) {
     AddThinkToEnt(RegenEnt, "Think");
 }
 
-// if (KeepPath) {
-//     HandleKeepPathCommand(["true"]);
-// }
 
-// if (OneShot) {
-//     HandleOneShotCommand(["true"]);
-// }
+/**
+ * @type {function}
+ * @param {CTFPlayer} activator
+ * @param {[string]} _arguments
+ */
+local function HandlePanicCommand(activator, _arguments) {
+    foreach (player in GetPlayers()) {
+        local team = player.GetTeam();
+        if (team != TF_TEAM_PVE_INVADERS && team != TF_TEAM_PVE_INVADERS_GIANTS) {
+            continue;
+        }
 
-// if (Regen) {
-//     HandleRegenCommand(["true"]);
-// }
+        player.SetHealth(0);
+        player.TakeDamage(1, DMG_GENERIC, activator);
+    }
 
-// if (KeepMap) {
-//     HandleKeepMapCommand(["true"]);
-// }
+    for (local tank; tank = Entities.FindByClassname(tank, "tank_boss");) {
+        local team = tank.GetTeam();
+        if (team != TF_TEAM_PVE_INVADERS && team != TF_TEAM_PVE_INVADERS_GIANTS) {
+            continue;
+        }
+
+        tank.SetHealth(0);
+        tank.TakeDamage(1, DMG_GENERIC, activator);
+    }
+
+    for (local obj; obj = Entities.FindByClassname(obj, "obj_*");) {
+        local team = obj.GetTeam();
+        if (team != TF_TEAM_PVE_INVADERS && team != TF_TEAM_PVE_INVADERS_GIANTS) {
+            continue;
+        }
+
+        obj.AcceptInput("SetHealth", "", null, null);
+        obj.TakeDamage(1, DMG_GENERIC, activator);
+    }
+}
+
 
 local commands_map = {
     "path": HandlePathCommand,
@@ -1042,6 +1083,7 @@ local commands_map = {
     "oneshot": HandleOneShotCommand,
     "one_shot": HandleOneShotCommand,
     "regen": HandleRegenCommand,
+    "panic": HandlePanicCommand,
 };
 
 __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
@@ -1052,6 +1094,7 @@ __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
             return;
         }
 
+
         local parts = split(text.slice(1).tolower(), " ", true);
         if (parts.len() == 0) {
             return;
@@ -1059,10 +1102,11 @@ __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
 
         local command = parts[0];
         if (command in commands_map) {
-            /** @type {@(arguments: [string])} */
+            local activator = GetPlayerFromUserID(params.userid);
+            /** @type {@(activator: CTFPlayer, arguments: [string])} */
             local callback = commands_map[command];
             local arguments = parts.slice(1);
-            callback(arguments);
+            callback(activator, arguments);
         }
     }
 
@@ -1110,45 +1154,47 @@ __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
             RunWithDelay(SetPath, 6.0);
         }
 
-        if (KeepBuildings) {
-            foreach (building in Buildings) {
-                if (!building.builder.IsValid()) {
-                    continue;
-                }
+        if (!KeepBuildings) {
+            return;
+        }
 
-                local pda = GetPDA(building.builder);
-                // Can't build anymore
-                if (!pda) {
-                    continue;
-                }
+        foreach (building in Buildings) {
+            if (!building.builder.IsValid()) {
+                continue;
+            }
 
-                local keyvalues = {
-                    origin = building.origin,
-                    angles = building.angles,
-                    teamnum = building.team,
-                    defaultupgrade = building.upgrade_level - 1,
-                    modelscale = building.is_disposable ? 0.6 : (building.is_mini ? 0.75 : 1.0),
-                };
-                if ("teleporter_type" in building) {
-                    keyvalues.teleporterType <- building.teleporter_type;
-                }
+            local pda = GetPDA(building.builder);
+            // Can't build anymore
+            if (!pda) {
+                continue;
+            }
 
-                /** @type {CBaseCombatCharacter} */
-                local obj = SpawnEntityFromTable(building.classname, keyvalues);
-                obj.SetSkin(building.team);
+            local keyvalues = {
+                origin = building.origin,
+                angles = building.angles,
+                teamnum = building.team,
+                defaultupgrade = building.upgrade_level - 1,
+                modelscale = building.is_disposable ? 0.6 : (building.is_mini ? 0.75 : 1.0),
+            };
+            if ("teleporter_type" in building) {
+                keyvalues.teleporterType <- building.teleporter_type;
+            }
 
-                local health = GetBuildingHealth(building, pda);
-                obj.AcceptInput("SetHealth", health.tostring(), null, null);
+            /** @type {CBaseCombatCharacter} */
+            local obj = SpawnEntityFromTable(building.classname, keyvalues);
+            obj.SetSkin(building.team);
+
+            local health = GetBuildingHealth(building, pda);
+            obj.AcceptInput("SetHealth", health.tostring(), null, null);
 
 
-                NetProps.SetPropBool(obj, "m_bMiniBuilding", building.is_mini);
-                // Need a delay, otherwise mini buildings are destroyed
-                EntFireByHandle(obj, "SetBuilder", "!activator", 0.0, building.builder, null);
+            NetProps.SetPropBool(obj, "m_bMiniBuilding", building.is_mini);
+            // Need a delay, otherwise mini buildings are destroyed
+            EntFireByHandle(obj, "SetBuilder", "!activator", 0.0, building.builder, null);
 
-                // Need a builder before setting this to true, therefore delay is needed
-                if (building.is_disposable) {
-                    RunWithDelay(@() NetProps.SetPropBool(obj, "m_bDisposableBuilding", true), 0.0);
-                }
+            // Need a builder before setting this to true, therefore delay is needed
+            if (building.is_disposable) {
+                RunWithDelay(@() NetProps.SetPropBool(obj, "m_bDisposableBuilding", true), 0.0);
             }
         }
     }
