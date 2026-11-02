@@ -1124,8 +1124,6 @@ __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
                 continue;
             }
 
-            printl(NetProps.GetPropBool(obj, "m_bDisposableBuilding"));
-
             local building = {
                 classname = obj.GetClassname(),
                 origin = obj.GetOrigin(),
