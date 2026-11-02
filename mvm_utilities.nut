@@ -644,7 +644,14 @@ local function SetPath() {
 local function JumpToWave(wave_number, with_clean_cash) {
     local sv_cheats = Convars.GetInt("sv_cheats");
     local second_param = with_clean_cash ? "1" : "-1";
-    SendToConsole(format("sv_cheats 1;tf_mvm_jump_to_wave %d %s;sv_cheats %d", wave_number, second_param, sv_cheats));
+    local command = format("sv_cheats 1;tf_mvm_jump_to_wave %d %s;sv_cheats %d", wave_number, second_param, sv_cheats);
+    if (!IsDedicatedServer()) {
+        SendToConsole(command);
+    } else if (Convars.GetStr("sv_allow_point_servercommand") == "always") {
+        SendToServerConsole(command);
+    } else {
+        Print("Failed to jump to wave on a dedicated server. Set 'sv_allow_point_servercommand' to 'always' for it to function properly");
+    }
 }
 
 /**
