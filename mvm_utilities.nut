@@ -1062,7 +1062,7 @@ local function HandlePanicCommand(activator, _arguments) {
             continue;
         }
 
-        obj.AcceptInput("SetHealth", "", null, null);
+        obj.AcceptInput("SetHealth", "0", null, null);
         obj.TakeDamage(1, DMG_GENERIC, activator);
     }
 }
