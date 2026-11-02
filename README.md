@@ -2,8 +2,8 @@
 Provides a set of chat commands that help with testing or just completing the mission on local servers.
 
 ## Usage instructions
-Put `mvm_utilities.nut` in `tf/scripts/vscripts/`. After creating a server use `script_execute mvm_utilities` and you're set.
-Another way would be add this command in `tf/cfg/listenserver.cfg` (create this file if needed) to run the script automatically upon server creation.
+Put `mvm_utilities.nut` in `tf/scripts/vscripts/`. If you're running a dedicated server you will also need set `sv_allow_point_servercommand` to `always`. After creating a server use `script_execute mvm_utilities` and commands are free to use.
+Another way would be add these commands in `tf/cfg/listenserver.cfg` (create this file if needed) to run the script automatically upon server creation.
 > [!NOTE]
 > Setting `sv_cheats` to 0 changes exiting upgrade station behaviour - your upgrades will be cancelled instead of being saved which can be
 > quite obnoxious to work with. Instead I suggest keeping it at 0 and if cheats are needed, wrap them between `sv_cheats 1/0`.
@@ -67,6 +67,12 @@ Penetrates through über and other kinds of invulnerabilities.
 Whether real players get health and ammo regeneration.
 This also restores buff meters and other miscellaneous bars (not all of them though).
 This prevents real players from dying as their health will be kept at their max health threshold.
+
+### !panic
+**Usage:** `!panic`.
+
+Kills all alive bots, tanks and buildings that are on the blue team.
+Gives the kills to whoever used the command.
 
 ## Path picking
 Path picking data (e.g. relays) has mainly been copied from the Source Mod plugin [Bomb Path Picker](https://forums.alliedmods.net/showthread.php?p=2788098). It doesn't include all maps that are out right now and it might be incorrect as I didn't check each map manually. This might be improved in the future.
