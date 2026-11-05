@@ -1274,12 +1274,11 @@ __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
             return;
         }
 
-        // If victim is a player, don't one shot them
-        // if (params.const_entity instanceof CTFPlayer && !(params.const_entity instanceof CTFBot)) {
-        //     return;
-        // }
-
         if (!(params.attacker instanceof CTFPlayer) || params.attacker instanceof CTFBot) {
+            return;
+        }
+
+        if (params.const_entity.GetTeam() == params.attacker.GetTeam()) {
             return;
         }
 

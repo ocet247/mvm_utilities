@@ -26,3 +26,4 @@
 - Add a !noclip command
 - Fix buildings oneshotting producing crashes
 - Fix !oneshot not penetrating through bonk
+- Fix !oneshot setting teammates' health to 0
