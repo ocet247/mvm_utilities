@@ -1096,6 +1096,31 @@ local function HandlePanicCommand(activator, _arguments) {
 }
 
 
+/**
+ * @type {function}
+ * @param {CTFPlayer} activator
+ * @param {[string]} arguments
+ */
+local function HandleNoclipCommand(activator, arguments) {
+    local should_noclip;
+    if (arguments.len() == 0) {
+        should_noclip = activator.GetMoveType() != MOVETYPE_NOCLIP;
+        Print("Noclip toggled to: " + should_noclip, activator);
+    } else {
+        local new = string_to_bool(arguments[0]);
+        if (new == null) {
+            Print("Unknown toggle argument, valid options are: 0|1|false|true");
+            return;
+        }
+
+        should_noclip = new;
+        Print("Noclip set to: " + should_noclip, activator);
+    }
+
+    activator.SetMoveType(should_noclip ? MOVETYPE_NOCLIP : MOVETYPE_WALK, MOVECOLLIDE_DEFAULT);
+}
+
+
 local commands_map = {
     "path": HandlePathCommand,
     "start": HandleStartCommand,
@@ -1112,6 +1137,7 @@ local commands_map = {
     "one_shot": HandleOneShotCommand,
     "regen": HandleRegenCommand,
     "panic": HandlePanicCommand,
+    "noclip": HandleNoclipCommand,
 };
 
 __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
