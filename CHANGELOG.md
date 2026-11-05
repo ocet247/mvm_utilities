@@ -20,3 +20,9 @@
 - Fix !keeppath not working on Mannworks due to extra delays in the map logic.
 - Don't force `sv_cheats 1` anymore and set them on the fly instead.
 - Add !keep_buildings command.
+
+## V5
+- Add a !panic command
+- Add a !noclip command
+- Fix buildings oneshotting producing crashes
+- Fix !oneshot not penetrating through bonk
