@@ -566,8 +566,8 @@ local function RunWithDelay(func, delay = 0.0) {
 	return relay;
 }
 
-local function Print(text) {
-    ClientPrint(null,HUD_PRINTTALK,"\x04[MvM Utilities] \x01" + text);
+local function Print(text, player = null) {
+    ClientPrint(player, HUD_PRINTTALK, "\x04[MvM Utilities] \x01" + text);
 }
 
 local map_name = function() {
@@ -876,7 +876,7 @@ local function HandleKeepMapCommand(_activator, arguments) {
 
     local new = string_to_bool(arguments[0]);
     if (new == null) {
-        Print("Unknown toggle argument, valid options are: 0|1|false|true")
+        Print("Unknown toggle argument, valid options are: 0|1|false|true");
         return;
     }
 
@@ -901,7 +901,7 @@ local function HandleKeepPathCommand(_activator, arguments) {
     } else {
         local new = string_to_bool(arguments[0]);
         if (new == null) {
-            Print("Unknown toggle argument, valid options are: 0|1|false|true")
+            Print("Unknown toggle argument, valid options are: 0|1|false|true");
             return;
         }
 
@@ -932,7 +932,7 @@ local function HandleKeepBuildingsCommand(_activator, arguments) {
 
     local new = string_to_bool(arguments[0]);
     if (new == null) {
-        Print("Unknown toggle argument, valid options are: 0|1|false|true")
+        Print("Unknown toggle argument, valid options are: 0|1|false|true");
         return;
     }
 
@@ -954,7 +954,7 @@ local function HandleOneShotCommand(_activator, arguments) {
 
     local new = string_to_bool(arguments[0]);
     if (new == null) {
-        Print("Unknown toggle argument, valid options are: 0|1|false|true")
+        Print("Unknown toggle argument, valid options are: 0|1|false|true");
         return;
     }
 
@@ -974,7 +974,7 @@ local function HandleRegenCommand(_activator, arguments) {
     } else {
         local new = string_to_bool(arguments[0]);
         if (new == null) {
-            Print("Unknown toggle argument, valid options are: 0|1|false|true")
+            Print("Unknown toggle argument, valid options are: 0|1|false|true");
             return;
         }
 
