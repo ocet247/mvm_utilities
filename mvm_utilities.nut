@@ -50,6 +50,11 @@ const MAX_WEAPONS = 8;
 const LOADOUT_POSITION_UTILITY = 3;
 const TF_TEAM_PVE_INVADERS = 3;
 const TF_TEAM_PVE_INVADERS_GIANTS = 4;
+const MOVETYPE_WALK = 2;
+const MOVETYPE_NOCLIP = 8;
+const MOVECOLLIDE_DEFAULT = 0;
+const TF_COND_PHASE = 14;
+const TF_COND_PASSTIME_INTERCEPTION = 106;
 
 /** @const */
 local MAX_CLIENTS = MaxClients().tointeger();
@@ -705,6 +710,29 @@ local function GetBuildingHealth(building, pda) {
     return health;
 }
 
+/**
+ * @type {function}
+ * @param {CBaseCombatCharacter} entity
+ */
+local function PrepareForKill(entity) {
+    // Buildings
+    if (entity.getclass() == CBaseCombatCharacter) {
+        entity.AcceptInput("SetHealth", "1", null, null);
+        return;
+    }
+
+    if (entity instanceof CTFBaseBoss) {
+        entity.SetHealth(0);
+        return;
+    }
+
+    if (entity instanceof CTFPlayer) {
+        entity.SetHealth(0);
+        entity.RemoveCond(TF_COND_PHASE);
+        entity.RemoveCond(TF_COND_PASSTIME_INTERCEPTION);
+    }
+}
+
 local function string_to_bool(argument) {
     switch (argument) {
     case "1":
@@ -1042,7 +1070,7 @@ local function HandlePanicCommand(activator, _arguments) {
             continue;
         }
 
-        player.SetHealth(0);
+        PrepareForKill(player);
         player.TakeDamage(1, DMG_GENERIC, activator);
     }
 
@@ -1052,7 +1080,7 @@ local function HandlePanicCommand(activator, _arguments) {
             continue;
         }
 
-        tank.SetHealth(0);
+        PrepareForKill(tank);
         tank.TakeDamage(1, DMG_GENERIC, activator);
     }
 
@@ -1062,7 +1090,7 @@ local function HandlePanicCommand(activator, _arguments) {
             continue;
         }
 
-        obj.AcceptInput("SetHealth", "0", null, null);
+        PrepareForKill(obj);
         obj.TakeDamage(1, DMG_GENERIC, activator);
     }
 }
@@ -1229,9 +1257,7 @@ __CollectGameEventCallbacks(::MvMUtilitiesEvents <- {
             return;
         }
 
-        params.const_entity.SetHealth(0);
-        // Needed for buildings (perhaps for something else too)
-        params.const_entity.AcceptInput("SetHealth", "0", null, null);
+        PrepareForKill(params.const_entity);
         // none or crit, needed to bypass some game checks so the damage is actually dealt
         params.damage_type = params.damage_type & DMG_CRIT;
     }
